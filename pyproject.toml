@@ -1,7 +1,7 @@
 [project]
-name = ""
-version = ""
-description = ""
+name = "Asteroid Smash"
+version = "1.1"
+description = "An upgrade to the Python Arcade library's demo, Asteroid Smasher."
 authors = [
     {name = "Brandon Corfman", email = "bcorfman@fastmail.fm"},
 ]
