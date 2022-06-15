@@ -16,7 +16,6 @@ import arcade
 from typing import cast
 
 STARTING_ASTEROID_COUNT = 3
-SCALE = 0.5
 OFFSCREEN_SPACE = 300
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600

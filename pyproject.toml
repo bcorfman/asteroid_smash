@@ -1,12 +1,12 @@
 [project]
 name = "Asteroid Smash"
 version = "1.1"
-description = "An upgrade to the Python Arcade library's demo, Asteroid Smasher."
+description = "A beefed-up version of the Arcade library demo, Asteroid Smasher."
 authors = [
     {name = "Brandon Corfman", email = "bcorfman@fastmail.fm"},
 ]
 dependencies = [
-    "arcade>=2.6.13",
+    "arcade>=2.6.15",
 ]
 requires-python = ">=3.10"
 license = {text = "MIT"}
