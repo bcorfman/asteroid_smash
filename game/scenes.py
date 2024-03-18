@@ -1,5 +1,6 @@
 import cocos
-from asteroid import Large
+
+from .asteroid import Large
 
 
 class AttractMode(cocos.layer.ColorLayer):
@@ -7,6 +8,6 @@ class AttractMode(cocos.layer.ColorLayer):
 
     def __init__(self):
         super(AttractMode, self).__init__(0, 0, 0, 255)
-        self.asteroids = [Large(self) for _ in range(5)]
+        self.asteroids = [Large(self) for _ in range(8)]
         for a in self.asteroids:
             a.start()

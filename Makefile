@@ -12,6 +12,8 @@ devinstall:
 	$(HOME)/.rye/shims/rye pin $(PYTHON_VERSION)
 	$(HOME)/.rye/shims/rye sync --no-lock
 
+run: 
+	$(HOME)/.rye/shims/rye run python main.py
 
 lint:
 	$(HOME)/.rye/shims/rye lint -q -- --select I --fix 
