@@ -12,7 +12,7 @@ from cocos.sprite import Sprite
 
 class Asteroid(Sprite):
     def __init__(self, image):
-        super(Sprite, self).__init__(image)
+        Sprite.__init__(self, image)
         buffer = 100
         self.window_width, self.window_height = (
             director._window_virtual_width,
@@ -31,7 +31,7 @@ class Small(Asteroid):
         self._layer = layer
         img_name = random.choice(["meteorgrey_small1.png", "meteorgrey_small2.png"])
         image_file = os.path.join("res", img_name)
-        super(Asteroid, self).__init__(image_file)
+        Asteroid.__init__(self, image_file)
         self.velocity = (
             random.choice([-1, 1]) * random.randint(4, 10),
             random.choice([-1, 1]) * random.randint(4, 10),
@@ -54,7 +54,7 @@ class Medium(Asteroid):
     def __init__(self, layer: Layer):
         img_name = random.choice(["meteorgrey_med1.png", "meteorgrey_med2.png"])
         image_file = os.path.join("res", img_name)
-        super(Asteroid, self).__init__(image_file)
+        Asteroid.__init__(self, image_file)
         self.velocity = (
             random.choice([-1, 1]) * random.randint(3, 9),
             random.choice([-1, 1]) * random.randint(3, 9),
@@ -86,7 +86,7 @@ class Large(Asteroid):
             ]
         )
         image_file = os.path.join("res", img_name)
-        super(Asteroid, self).__init__(image_file)
+        Asteroid.__init__(self, image_file)
         self.velocity = (
             random.choice([-1, 1]) * random.randint(15, 30),
             random.choice([-1, 1]) * random.randint(15, 30),
