@@ -39,5 +39,6 @@ class AttractMode(ColorLayer):
             cell_side,
             cell_side,
         )
+        print(repr(a))
         for a in self.asteroids:
             self.collman.add(a)
