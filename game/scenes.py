@@ -51,6 +51,7 @@ class AttractMode(ColorLayer):
         for _, node in self.children:
             self.collman.add(node)
 
+        # TODO: figure out how to delete objects correctly when colliding
         # interactions: asteroids
         actor: Sprite = None
         other: Sprite = None
