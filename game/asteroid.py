@@ -13,17 +13,23 @@ from cocos.sprite import Sprite
 class Asteroid(Sprite):
     def __init__(self, image):
         Sprite.__init__(self, image)
-        buffer = 100
+        self.buffer = max(self.width, self.height)
         self.window_width, self.window_height = (
             director._window_virtual_width,
             director._window_virtual_height,
         )
         self.scale = 2
+        self.generate_position()
+        self.colliding = False
+
+    def generate_position(self):
         self.position = (
-            random.randint(buffer, self.window_width - buffer),
-            random.randint(buffer, self.window_height - buffer),
+            random.randint(self.buffer, self.window_width - self.buffer),
+            random.randint(self.buffer, self.window_height - self.buffer),
         )
-        self.cshape = CircleShape(Vector2(self.position), min(self.width, self.height))
+        self.cshape = CircleShape(
+            Vector2(self.position[0], self.position[1]), self.buffer
+        )
 
 
 class Small(Asteroid):
@@ -87,6 +93,10 @@ class Large(Asteroid):
         )
         image_file = os.path.join("res", img_name)
         Asteroid.__init__(self, image_file)
+        self._layer = layer
+        self._layer.add(self)
+
+    def begin_move(self):
         self.velocity = (
             random.choice([-1, 1]) * random.randint(15, 30),
             random.choice([-1, 1]) * random.randint(15, 30),
@@ -97,8 +107,6 @@ class Large(Asteroid):
             )
             | WrappedMove(self.window_width, self.window_height)
         )
-        self._layer = layer
-        self._layer.add(self)
 
     def process_collision(self, pt):
         exp = Explosion()

@@ -3,32 +3,37 @@ import math
 from cocos.collision_model import CollisionManagerGrid
 from cocos.director import director
 from cocos.layer import ColorLayer
+from cocos.sprite import Sprite
 
 from .asteroid import Large
 
 
 class AttractMode(ColorLayer):
     is_event_handler = True
+    max_asteroids = 8
 
     def __init__(self):
         super(AttractMode, self).__init__(0, 0, 0, 255)
         self.asteroids = []
-        count = 0
-        while True:
+        for _ in range(self.max_asteroids):
             new = Large(self)
-            for a in self.asteroids:
-                # if new asteroid is too close to existing asteroids, generate another
-                if (
-                    math.hypot(
-                        new.position[0] - a.position[0], new.position[1] - a.position[1]
+            while True:
+                collision = False
+                for a in self.asteroids:
+                    # if new asteroid is too close to existing asteroids, generate another
+                    dist = math.hypot(
+                        abs(new.position[0] - a.position[0]),
+                        abs(new.position[1] - a.position[1]),
                     )
-                    <= 100
-                ):
-                    continue
-            self.asteroids.append(new)
-            count += 1
-            if count >= 8:
-                break
+                    if dist <= a.buffer * 2:
+                        new.generate_position()
+                        collision = True
+                        break
+                if not collision:
+                    self.asteroids.append(new)
+                    break
+        for a in self.asteroids:
+            a.begin_move()
 
         cell_side = self.asteroids[0].cshape.r * 2
         self.collman = CollisionManagerGrid(
@@ -39,6 +44,20 @@ class AttractMode(ColorLayer):
             cell_side,
             cell_side,
         )
-        print(repr(a))
-        for a in self.asteroids:
-            self.collman.add(a)
+        self.schedule(self.update)
+
+    def update(self, dt):
+        self.collman.clear()
+        for _, node in self.children:
+            self.collman.add(node)
+
+        # interactions: asteroids
+        actor: Sprite = None
+        other: Sprite = None
+        # for actor, other in self.collman.iter_all_collisions():
+        #    actor.colliding = True
+        #    other.colliding = True
+        # for a in self.asteroids:
+        #    if a.colliding:
+        #        self.collman.remove_tricky(a)
+        #        a.stop()
