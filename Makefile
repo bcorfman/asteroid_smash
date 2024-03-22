@@ -12,6 +12,9 @@ devinstall:
 	$(HOME)/.rye/shims/rye pin $(PYTHON_VERSION)
 	$(HOME)/.rye/shims/rye sync --no-lock
 
+test:
+	$(HOME)/.rye/shims/rye run pytest
+
 run: 
 	$(HOME)/.rye/shims/rye run python main.py
 

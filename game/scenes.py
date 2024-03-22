@@ -15,24 +15,7 @@ class AttractMode(ColorLayer):
 
     def __init__(self):
         super(AttractMode, self).__init__(0, 0, 0, 255)
-        self.asteroids = []
-        for _ in range(self.max_asteroids):
-            new = Large(self)
-            while True:
-                collision = False
-                for a in self.asteroids:
-                    # if new asteroid is too close to existing asteroids, generate another
-                    dist = math.hypot(
-                        abs(new.position[0] - a.position[0]),
-                        abs(new.position[1] - a.position[1]),
-                    )
-                    if dist <= a.buffer * 2:
-                        new.generate_position()
-                        collision = True
-                        break
-                if not collision:
-                    self.asteroids.append(new)
-                    break
+        self.asteroids = self.generate_asteroids()
         for a in self.asteroids:
             a.begin_move()
 
@@ -46,6 +29,27 @@ class AttractMode(ColorLayer):
             cell_side,
         )
         self.schedule(self.update)
+
+    def generate_asteroids(self):
+        asteroids = []
+        for _ in range(self.max_asteroids):
+            new = Large(self)
+            while True:
+                collision = False
+                for a in asteroids:
+                    # if new asteroid is too close to existing asteroids, generate another
+                    dist = math.hypot(
+                        abs(new.position[0] - a.position[0]),
+                        abs(new.position[1] - a.position[1]),
+                    )
+                    if dist <= a.buffer * 2:
+                        new.generate_position()
+                        collision = True
+                        break
+                if not collision:
+                    asteroids.append(new)
+                    break
+        return asteroids
 
     def update(self, dt):
         # add all child objects to collision manager
