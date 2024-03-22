@@ -13,13 +13,16 @@ from cocos.sprite import Sprite
 class Asteroid(Sprite):
     def __init__(self, image):
         Sprite.__init__(self, image)
-        self.buffer = max(self.width, self.height)
+        self.buffer = min(self.width, self.height)
         self.window_width, self.window_height = (
             director._window_virtual_width,
             director._window_virtual_height,
         )
         self.scale = 2
         self.generate_position()
+        self.cshape = CircleShape(
+            Vector2(self.position[0], self.position[1]), self.buffer
+        )
         self.colliding = False
 
     def generate_position(self):
@@ -27,9 +30,9 @@ class Asteroid(Sprite):
             random.randint(self.buffer, self.window_width - self.buffer),
             random.randint(self.buffer, self.window_height - self.buffer),
         )
-        self.cshape = CircleShape(
-            Vector2(self.position[0], self.position[1]), self.buffer
-        )
+
+    def update_cshape(self):
+        self.cshape.center = Vector2(self.position[0], self.position[1])
 
 
 class Small(Asteroid):
@@ -95,13 +98,14 @@ class Large(Asteroid):
         Asteroid.__init__(self, image_file)
         self._layer = layer
         self._layer.add(self)
+        self.action = None
 
     def begin_move(self):
         self.velocity = (
             random.choice([-1, 1]) * random.randint(15, 30),
             random.choice([-1, 1]) * random.randint(15, 30),
         )
-        self.do(
+        self.action = self.do(
             Repeat(
                 RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(5, 15))
             )

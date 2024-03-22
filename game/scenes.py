@@ -2,6 +2,7 @@ import math
 
 from cocos.collision_model import CollisionManagerGrid
 from cocos.director import director
+from cocos.euclid import Vector2
 from cocos.layer import ColorLayer
 from cocos.sprite import Sprite
 
@@ -47,18 +48,27 @@ class AttractMode(ColorLayer):
         self.schedule(self.update)
 
     def update(self, dt):
+        # add all child objects to collision manager
         self.collman.clear()
         for _, node in self.children:
             self.collman.add(node)
 
-        # TODO: figure out how to delete objects correctly when colliding
-        # interactions: asteroids
+        # mark collisions for processing
         actor: Sprite = None
         other: Sprite = None
-        # for actor, other in self.collman.iter_all_collisions():
-        #    actor.colliding = True
-        #    other.colliding = True
-        # for a in self.asteroids:
-        #    if a.colliding:
-        #        self.collman.remove_tricky(a)
-        #        a.stop()
+        for actor, other in self.collman.iter_all_collisions():
+            actor.colliding = True
+            other.colliding = True
+            actor.remove_action(actor.action)
+            other.remove_action(other.action)
+
+        # process collisions
+        for _, item in enumerate(reversed(self.asteroids), start=1):
+            if item.colliding:
+                item.colliding = False
+                self.asteroids.remove(item)
+                self.remove(item)
+
+        # update cshapes for next frame
+        for asteroid in self.asteroids:
+            asteroid.update_cshape()
