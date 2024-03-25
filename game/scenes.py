@@ -13,7 +13,7 @@ class AttractMode(ColorLayer):
     is_event_handler = True
     max_asteroids = 8
 
-    def __init__(self):
+    def __init__(self, schedule_update=True):
         super(AttractMode, self).__init__(0, 0, 0, 255)
         self.asteroids = self.generate_asteroids()
         for a in self.asteroids:
@@ -28,12 +28,14 @@ class AttractMode(ColorLayer):
             cell_side,
             cell_side,
         )
-        self.schedule(self.update)
+        if schedule_update:
+            print("schedule")
+            self.schedule(self.update)
 
     def generate_asteroids(self):
         asteroids = []
         for _ in range(self.max_asteroids):
-            new = Large(self)
+            new = Large()
             while True:
                 collision = False
                 for a in asteroids:
@@ -61,6 +63,7 @@ class AttractMode(ColorLayer):
         actor: Sprite = None
         other: Sprite = None
         for actor, other in self.collman.iter_all_collisions():
+            print("colliding")
             actor.colliding = True
             other.colliding = True
             actor.remove_action(actor.action)
@@ -69,7 +72,10 @@ class AttractMode(ColorLayer):
         # process collisions
         for _, item in enumerate(reversed(self.asteroids), start=1):
             if item.colliding:
+                print("collision")
                 item.colliding = False
+                explosion = item.process_collision()
+                self.add(explosion)
                 self.asteroids.remove(item)
                 self.remove(item)
 

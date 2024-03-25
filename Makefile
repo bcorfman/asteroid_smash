@@ -3,7 +3,7 @@ SHELL := env PYTHON_VERSION=$(PYTHON_VERSION) /bin/bash
 PYTHON_VERSION ?= 3.12
 
 prereq:
-    sudo apt-get -y update
+	sudo apt-get -y update
 	sudo apt-get -y install libsdl1.2-dev
 	sudo apt purge -y acpid acpi-support modemmanager whoopsie
 	sudo apt-mark hold acpid acpi-support modemmanager whoopsie
@@ -31,5 +31,5 @@ lint:
 
 format:
 	$(HOME)/.rye/shims/rye fmt
-	
+
 all: devinstall lint format test

@@ -1,7 +1,11 @@
+import os
+
 from cocos.director import director
 from cocos.scene import Scene
 
 from game.scenes import AttractMode
+
+PROJECT_DIR = os.path.dirname(__file__)
 
 
 def main():

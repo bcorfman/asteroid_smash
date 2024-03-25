@@ -34,58 +34,55 @@ class Asteroid(Sprite):
     def update_cshape(self):
         self.cshape.center = Vector2(self.position[0], self.position[1])
 
+    def process_collision(self, pt):
+        exp = Explosion()
+        exp.auto_remove_on_finish = True
+        exp.position = pt
+        return exp
+
 
 class Small(Asteroid):
-    def __init__(self, layer: Layer):
-        self._layer = layer
+    def __init__(self):
         img_name = random.choice(["meteorgrey_small1.png", "meteorgrey_small2.png"])
         image_file = os.path.join("res", img_name)
         Asteroid.__init__(self, image_file)
+        self.action = None
+
+    def begin_move(self):
         self.velocity = (
             random.choice([-1, 1]) * random.randint(4, 10),
             random.choice([-1, 1]) * random.randint(4, 10),
         )
-        self.do(
+        self.action = self.do(
             Repeat(
                 RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(3, 10))
             )
             | WrappedMove(self.window_width, self.window_height)
         )
 
-    def process_collision(self, pt):
-        exp = Explosion()
-        exp.auto_remove_on_finish = True
-        exp.position = pt
-        self._layer.add(exp)
-
 
 class Medium(Asteroid):
-    def __init__(self, layer: Layer):
+    def __init__(self):
         img_name = random.choice(["meteorgrey_med1.png", "meteorgrey_med2.png"])
         image_file = os.path.join("res", img_name)
         Asteroid.__init__(self, image_file)
+        self.action = None
+
+    def begin_move(self):
         self.velocity = (
             random.choice([-1, 1]) * random.randint(3, 9),
             random.choice([-1, 1]) * random.randint(3, 9),
         )
-        self.do(
+        self.action = self.do(
             Repeat(
                 RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(4, 12))
             )
             | WrappedMove(self.window_width, self.window_height)
         )
-        self._layer = layer
-        self._layer.add(self)
-
-    def process_collision(self, pt):
-        exp = Explosion()
-        exp.auto_remove_on_finish = True
-        exp.position = pt
-        self._layer.add(exp)
 
 
 class Large(Asteroid):
-    def __init__(self, layer: Layer):
+    def __init__(self):
         img_name = random.choice(
             [
                 "meteorgrey_big1.png",
@@ -96,8 +93,6 @@ class Large(Asteroid):
         )
         image_file = os.path.join("res", img_name)
         Asteroid.__init__(self, image_file)
-        self._layer = layer
-        self._layer.add(self)
         self.action = None
 
     def begin_move(self):
@@ -111,9 +106,3 @@ class Large(Asteroid):
             )
             | WrappedMove(self.window_width, self.window_height)
         )
-
-    def process_collision(self, pt):
-        exp = Explosion()
-        exp.auto_remove_on_finish = True
-        exp.position = pt
-        self._layer.add(exp)
