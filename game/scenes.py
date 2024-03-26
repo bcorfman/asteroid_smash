@@ -18,6 +18,7 @@ class AttractMode(ColorLayer):
         self.asteroids = self.generate_asteroids()
         for a in self.asteroids:
             a.begin_move()
+            self.add(a)
 
         cell_side = self.asteroids[0].cshape.r * 2
         self.collman = CollisionManagerGrid(
@@ -29,7 +30,6 @@ class AttractMode(ColorLayer):
             cell_side,
         )
         if schedule_update:
-            print("schedule")
             self.schedule(self.update)
 
     def generate_asteroids(self):
@@ -56,25 +56,24 @@ class AttractMode(ColorLayer):
     def update(self, dt):
         # add all child objects to collision manager
         self.collman.clear()
-        for _, node in self.children:
+        for node in self.asteroids:
             self.collman.add(node)
 
         # mark collisions for processing
         actor: Sprite = None
         other: Sprite = None
         for actor, other in self.collman.iter_all_collisions():
-            print("colliding")
             actor.colliding = True
-            other.colliding = True
             actor.remove_action(actor.action)
             other.remove_action(other.action)
+            midpt = self.calc_midpoint(actor.cshape.center, other.cshape.center)
 
         # process collisions
         for _, item in enumerate(reversed(self.asteroids), start=1):
             if item.colliding:
                 print("collision")
                 item.colliding = False
-                explosion = item.process_collision()
+                explosion = item.process_collision(midpt)
                 self.add(explosion)
                 self.asteroids.remove(item)
                 self.remove(item)
@@ -82,3 +81,6 @@ class AttractMode(ColorLayer):
         # update cshapes for next frame
         for asteroid in self.asteroids:
             asteroid.update_cshape()
+
+    def calc_midpoint(self, vec1: Vector2, vec2: Vector2):
+        return (vec1.x + vec2.x) / 2, (vec1.y + vec2.y) / 2

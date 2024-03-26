@@ -4,8 +4,7 @@ import random
 from cocos.actions import Repeat, RotateBy, WrappedMove
 from cocos.collision_model import CircleShape
 from cocos.director import director
-from cocos.euclid import Vector2
-from cocos.layer import Layer
+from cocos.euclid import Point2, Vector2
 from cocos.particle_systems import Explosion
 from cocos.sprite import Sprite
 
@@ -38,6 +37,7 @@ class Asteroid(Sprite):
         exp = Explosion()
         exp.auto_remove_on_finish = True
         exp.position = pt
+        exp.gravity = Point2(0, 0)
         return exp
 
 
