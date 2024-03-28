@@ -20,7 +20,7 @@ class AttractMode(ColorLayer):
             a.begin_move()
             self.add(a)
 
-        cell_side = self.asteroids[0].cshape.r * 2
+        cell_side = min(self.asteroids[0].width, self.asteroids[0].height) * 1.25
         self.collman = CollisionManagerGrid(
             0.0,
             director._window_virtual_width,
@@ -33,8 +33,8 @@ class AttractMode(ColorLayer):
             self.schedule(self.update)
 
     def generate_asteroids(self):
-        asteroids = []
-        for _ in range(self.max_asteroids):
+        asteroids = [Large()]
+        for _ in range(1, self.max_asteroids):
             new = Large()
             while True:
                 collision = False
@@ -44,7 +44,7 @@ class AttractMode(ColorLayer):
                         abs(new.position[0] - a.position[0]),
                         abs(new.position[1] - a.position[1]),
                     )
-                    if dist <= a.buffer * 2:
+                    if dist <= a.buffer * 3:
                         new.generate_position()
                         collision = True
                         break
@@ -65,7 +65,6 @@ class AttractMode(ColorLayer):
         for actor, other in self.collman.iter_all_collisions():
             actor.colliding = True
             actor.remove_action(actor.action)
-            other.remove_action(other.action)
             midpt = self.calc_midpoint(actor.cshape.center, other.cshape.center)
 
         # process collisions
@@ -73,10 +72,14 @@ class AttractMode(ColorLayer):
             if item.colliding:
                 print("collision")
                 item.colliding = False
-                explosion = item.process_collision(midpt)
+                explosion, new_asteroids = item.process_collision(midpt)
                 self.add(explosion)
                 self.asteroids.remove(item)
                 self.remove(item)
+                for a in new_asteroids:
+                    a.begin_move()
+                    self.add(a)
+                self.asteroids.extend(new_asteroids)
 
         # update cshapes for next frame
         for asteroid in self.asteroids:
