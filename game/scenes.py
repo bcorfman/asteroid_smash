@@ -20,7 +20,7 @@ class AttractMode(ColorLayer):
         for a in self.asteroids:
             a.begin_move()
             self.add(a)
-        self.sample = LargeAsteroid()
+        self.sample = LargeAsteroid(-1)
         cell_side = min(self.sample.width, self.sample.height) * 1.25
         self.collman = CollisionManagerGrid(
             0.0,
@@ -34,9 +34,9 @@ class AttractMode(ColorLayer):
             self.schedule(self.update)
 
     def generate_asteroids(self):
-        asteroids = [LargeAsteroid()]
-        for _ in range(1, self.max_asteroids):
-            new = LargeAsteroid()
+        asteroids = [LargeAsteroid(0)]
+        for i in range(1, self.max_asteroids):
+            new = LargeAsteroid(i)
             while True:
                 collision = False
                 for a in asteroids:
@@ -64,23 +64,14 @@ class AttractMode(ColorLayer):
         actor: Sprite = None
         other: Sprite = None
         for actor, other in self.collman.iter_all_collisions():
-            actor.colliding = True
             actor.remove_action(actor.action)
+            actor.remove_action(other.action)
             midpt = self.calc_midpoint(actor.cshape.center, other.cshape.center)
-
-        # process collisions
-        for _, item in enumerate(reversed(self.asteroids), start=1):
-            if item.colliding:
-                item.colliding = False
-                explosion, new_asteroids = item.process_collision(midpt)
-                self.add(explosion)
-                self.asteroids.remove(item)
-                self.remove(item)
-                for a in new_asteroids:
-                    a.position = midpt[0]
-                    a.begin_move()
-                    self.add(a)
-                self.asteroids.extend(new_asteroids)
+            self.asteroids.remove(actor)
+            self.asteroids.remove(other)
+            self.remove(actor)
+            self.remove(other)
+            self.process_collision(actor, other, midpt)
 
         # update cshapes for next frame
         for asteroid in self.asteroids:
@@ -122,6 +113,7 @@ class AttractMode(ColorLayer):
                 a.move_delta = velocities[i]
                 a.begin_move()
                 self.add(a)
+            self.asteroids.extend(new_asteroids)
 
     def generate_explosion(self, pt):
         exp = Explosion()

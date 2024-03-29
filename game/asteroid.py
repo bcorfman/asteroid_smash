@@ -79,7 +79,8 @@ class MediumAsteroid(_Asteroid):
 
 
 class LargeAsteroid(_Asteroid):
-    def __init__(self):
+    def __init__(self, num):
+        self.num = num
         img_name = random.choice(
             [
                 "meteorgrey_big1.png",
