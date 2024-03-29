@@ -1,15 +1,14 @@
 import os
 import random
 
-from cocos.actions import Repeat, RotateBy, WrappedMove
+from cocos.actions import MoveBy, Repeat, RotateBy, WrappedMove
 from cocos.collision_model import CircleShape
 from cocos.director import director
-from cocos.euclid import Point2, Vector2
-from cocos.particle_systems import Color, Explosion
+from cocos.euclid import Vector2
 from cocos.sprite import Sprite
 
 
-class Asteroid(Sprite):
+class _Asteroid(Sprite):
     def __init__(self, image):
         Sprite.__init__(self, image)
         self.buffer = min(self.width, self.height)
@@ -24,7 +23,8 @@ class Asteroid(Sprite):
         )
         self.colliding = False
 
-    # TODO: this always generates points around the whole landscape, rather than next to a destroyed asteroid.
+    # Note: this generates points around the whole screen minus a small buffer,
+    # so the asteroid is fully visible at the start.
     def generate_position(self):
         self.position = (
             random.randint(self.buffer, self.window_width - self.buffer),
@@ -34,72 +34,51 @@ class Asteroid(Sprite):
     def update_cshape(self):
         self.cshape.center = Vector2(self.position[0], self.position[1])
 
-    def process_collision(self, pt, explosion_size, new_asteroids):
-        exp = Explosion()
-        exp.auto_remove_on_finish = True
-        exp.position = pt
-        exp.life = 1.0
-        exp.life_var = 0.2
-        exp.size = explosion_size
-        exp.size_var = 2.0
-        exp.start_color = Color(0.5, 0.5, 0.5, 1.0)
-        exp.start_color_var = Color(0.0, 0.0, 0.0, 0.0)
-        exp.end_color = Color(0.45, 0.45, 0.45, 1.0)
-        exp.end_color_var = Color(0.02, 0.02, 0.02, 0.0)
-        exp.gravity = Point2(0, 0)
-        exp.color_modulate = True
-        return exp, new_asteroids
+    def begin_move(self):
+        self.action = self.do(
+            Repeat(MoveBy(self.move_delta, duration=1.0))
+            | Repeat(
+                RotateBy(random.choice([-1, 1]) * 360, duration=self.rotation_time)
+            )
+            | WrappedMove(self.window_width, self.window_height)
+        )
 
 
-class Small(Asteroid):
+class SmallAsteroid(_Asteroid):
     def __init__(self):
         img_name = random.choice(["meteorgrey_small1.png", "meteorgrey_small2.png"])
         image_file = os.path.join("res", img_name)
-        Asteroid.__init__(self, image_file)
+        _Asteroid.__init__(self, image_file)
         self.action = None
+        self.size = 1
+        self.calc_velocity_and_rotation()
 
-    def begin_move(self):
-        self.velocity = (
-            random.choice([-1, 1]) * random.randint(4, 10),
-            random.choice([-1, 1]) * random.randint(4, 10),
+    def calc_velocity_and_rotation(self):
+        self.move_delta = (
+            random.choice([-1, 1]) * random.randint(10, 30),
+            random.choice([-1, 1]) * random.randint(10, 30),
         )
-        self.action = self.do(
-            Repeat(
-                RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(3, 36))
-            )
-            | WrappedMove(self.window_width, self.window_height)
-        )
-
-    def process_collision(self, pt):
-        new_asteroids = []
-        return Asteroid.process_collision(self, pt, 2, new_asteroids)
+        self.rotation_time = random.randint(20, 90)
 
 
-class Medium(Asteroid):
+class MediumAsteroid(_Asteroid):
     def __init__(self):
         img_name = random.choice(["meteorgrey_med1.png", "meteorgrey_med2.png"])
         image_file = os.path.join("res", img_name)
-        Asteroid.__init__(self, image_file)
+        _Asteroid.__init__(self, image_file)
         self.action = None
+        self.size = 2
+        self.calc_velocity_and_rotation()
 
-    def begin_move(self):
-        self.velocity = (
-            random.choice([-1, 1]) * random.randint(3, 9),
-            random.choice([-1, 1]) * random.randint(3, 9),
+    def calc_velocity_and_rotation(self):
+        self.move_delta = (
+            random.choice([-1, 1]) * random.randint(6, 20),
+            random.choice([-1, 1]) * random.randint(6, 20),
         )
-        self.action = self.do(
-            Repeat(
-                RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(4, 48))
-            )
-            | WrappedMove(self.window_width, self.window_height)
-        )
-
-    def process_collision(self, pt):
-        new_asteroids = [Small(), Small()]
-        return Asteroid.process_collision(self, pt, 4.5, new_asteroids)
+        self.rotation_time = random.randint(12, 75)
 
 
-class Large(Asteroid):
+class LargeAsteroid(_Asteroid):
     def __init__(self):
         img_name = random.choice(
             [
@@ -110,21 +89,14 @@ class Large(Asteroid):
             ]
         )
         image_file = os.path.join("res", img_name)
-        Asteroid.__init__(self, image_file)
+        _Asteroid.__init__(self, image_file)
         self.action = None
+        self.size = 3
+        self.calc_velocity_and_rotation()
 
-    def begin_move(self):
-        self.velocity = (
-            random.choice([-1, 1]) * random.randint(15, 30),
-            random.choice([-1, 1]) * random.randint(15, 30),
+    def calc_velocity_and_rotation(self):
+        self.move_delta = (
+            random.choice([-1, 1]) * random.randint(3, 12),
+            random.choice([-1, 1]) * random.randint(3, 12),
         )
-        self.action = self.do(
-            Repeat(
-                RotateBy(random.choice([-1, 1]) * 360, duration=random.randint(5, 60))
-            )
-            | WrappedMove(self.window_width, self.window_height)
-        )
-
-    def process_collision(self, pt):
-        new_asteroids = [Medium(), Medium()]
-        return Asteroid.process_collision(self, pt, 7.0, new_asteroids)
+        self.rotation_time = random.randint(5, 60)

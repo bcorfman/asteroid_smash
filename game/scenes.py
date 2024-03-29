@@ -2,11 +2,12 @@ import math
 
 from cocos.collision_model import CollisionManagerGrid
 from cocos.director import director
-from cocos.euclid import Vector2
+from cocos.euclid import Point2, Vector2
 from cocos.layer import ColorLayer
+from cocos.particle_systems import Color, Explosion
 from cocos.sprite import Sprite
 
-from .asteroid import Large
+from .asteroid import LargeAsteroid, MediumAsteroid, SmallAsteroid
 
 
 class AttractMode(ColorLayer):
@@ -19,8 +20,8 @@ class AttractMode(ColorLayer):
         for a in self.asteroids:
             a.begin_move()
             self.add(a)
-
-        cell_side = min(self.asteroids[0].width, self.asteroids[0].height) * 1.25
+        self.sample = LargeAsteroid()
+        cell_side = min(self.sample.width, self.sample.height) * 1.25
         self.collman = CollisionManagerGrid(
             0.0,
             director._window_virtual_width,
@@ -33,9 +34,9 @@ class AttractMode(ColorLayer):
             self.schedule(self.update)
 
     def generate_asteroids(self):
-        asteroids = [Large()]
+        asteroids = [LargeAsteroid()]
         for _ in range(1, self.max_asteroids):
-            new = Large()
+            new = LargeAsteroid()
             while True:
                 collision = False
                 for a in asteroids:
@@ -70,13 +71,13 @@ class AttractMode(ColorLayer):
         # process collisions
         for _, item in enumerate(reversed(self.asteroids), start=1):
             if item.colliding:
-                print("collision")
                 item.colliding = False
                 explosion, new_asteroids = item.process_collision(midpt)
                 self.add(explosion)
                 self.asteroids.remove(item)
                 self.remove(item)
                 for a in new_asteroids:
+                    a.position = midpt[0]
                     a.begin_move()
                     self.add(a)
                 self.asteroids.extend(new_asteroids)
@@ -87,3 +88,53 @@ class AttractMode(ColorLayer):
 
     def calc_midpoint(self, vec1: Vector2, vec2: Vector2):
         return (vec1.x + vec2.x) / 2, (vec1.y + vec2.y) / 2
+
+    def process_collision(self, asteroid1, asteroid2, pt):
+        self.break_asteroids(asteroid1, asteroid2, pt)
+        self.generate_explosion(pt)
+
+    def break_asteroids(self, asteroid1, asteroid2, pt):
+        # Break larger colliding asteroids into smaller pieces.
+        # If an asteroid is already small, it just vanishes.
+        new_asteroids = []
+        for a in [asteroid1, asteroid2]:
+            if a.size == 3:
+                new_asteroids.extend([MediumAsteroid(), MediumAsteroid()])
+            elif a.size == 2:
+                new_asteroids.extend([SmallAsteroid(), SmallAsteroid()])
+        if new_asteroids:
+            # Calc new asteroid positions based on the largest
+            # side of a large asteroid, which gives a little extra distance.
+            offset = max(self.sample.width, self.sample.height)
+            positions = [
+                (pt[0] - offset, pt[1]),
+                (pt[0] + offset, pt[1]),
+                (pt[0], pt[1] - offset),
+                (pt[0], pt[1] + offset),
+            ]
+
+            # New asteroids will go in opposite directions to
+            # each other in order to avoid any immediate collisions.
+            vel = new_asteroids[0].move_delta
+            velocities = [vel, (-vel[0], vel[1]), (vel[0], -vel[1]), (-vel[0], -vel[1])]
+            for i, a in enumerate(new_asteroids):
+                a.position = positions[i]
+                a.move_delta = velocities[i]
+                a.begin_move()
+                self.add(a)
+
+    def generate_explosion(self, pt):
+        exp = Explosion()
+        exp.auto_remove_on_finish = True
+        exp.position = pt
+        exp.life = 1.0
+        exp.life_var = 0.2
+        exp.size = 7.0
+        exp.size_var = 2.0
+        exp.start_color = Color(0.5, 0.5, 0.5, 1.0)
+        exp.start_color_var = Color(0.0, 0.0, 0.0, 0.0)
+        exp.end_color = Color(0.45, 0.45, 0.45, 1.0)
+        exp.end_color_var = Color(0.02, 0.02, 0.02, 0.0)
+        exp.gravity = Point2(0, 0)
+        exp.color_modulate = True
+        self.add(exp)
