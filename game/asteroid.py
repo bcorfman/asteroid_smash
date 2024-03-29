@@ -35,6 +35,7 @@ class _Asteroid(Sprite):
         self.cshape.center = Vector2(self.position[0], self.position[1])
 
     def begin_move(self):
+        self.velocity = self.move_delta
         self.action = self.do(
             Repeat(MoveBy(self.move_delta, duration=1.0))
             | Repeat(

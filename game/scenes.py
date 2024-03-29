@@ -65,13 +65,13 @@ class AttractMode(ColorLayer):
         other: Sprite = None
         for actor, other in self.collman.iter_all_collisions():
             actor.remove_action(actor.action)
-            actor.remove_action(other.action)
+            other.remove_action(other.action)
             midpt = self.calc_midpoint(actor.cshape.center, other.cshape.center)
             self.asteroids.remove(actor)
             self.asteroids.remove(other)
+            self.process_collision(actor, other, midpt)
             self.remove(actor)
             self.remove(other)
-            self.process_collision(actor, other, midpt)
 
         # update cshapes for next frame
         for asteroid in self.asteroids:
