@@ -18,7 +18,7 @@ An jazzed-up version of Asteroids designed with Cocos2D.
   * [Make support and task provider](https://marketplace.visualstudio.com/items?itemName=carlos-algms.make-task-provider)
 * These recommendations will pop up when opening the project inside VSCode.
 * Installing both extensions will
-  * Use the code in `settings.json` to run `make format` on each `File:Save`.
+  * Use the code in `settings.json` to run `make format` and `make lint` on each `File:Save`.
   * Display available Make targets within the _Makefile Tasks_ sidebar pane and allow them to be run with a mouse click.
 
 ## Game instructions
