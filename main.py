@@ -1,11 +1,13 @@
 import os
 
+import pyglet
 from cocos.director import director
 from cocos.scene import Scene
 
 from game.scenes import AttractMode
 
-PROJECT_DIR = os.path.dirname(__file__)
+pyglet.resource.path.append(os.path.join(os.path.dirname(__file__), "res"))
+pyglet.resource.reindex()
 
 
 def main():
