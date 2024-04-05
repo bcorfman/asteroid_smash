@@ -35,6 +35,7 @@ class _Asteroid(Sprite):
         self.cshape.center = Vector2(self.position[0], self.position[1])
 
     def begin_move(self):
+        print(self.rotation_time)
         self.velocity = self.move_delta
         self.action = self.do(
             Repeat(MoveBy(self.move_delta, duration=1.0))
@@ -47,8 +48,7 @@ class _Asteroid(Sprite):
 
 class SmallAsteroid(_Asteroid):
     def __init__(self):
-        img_name = random.choice(["meteorgrey_small1.png", "meteorgrey_small2.png"])
-        image_file = os.path.join("res", img_name)
+        image_file = random.choice(["meteorgrey_small1.png", "meteorgrey_small2.png"])
         _Asteroid.__init__(self, image_file)
         self.action = None
         self.size = 1
@@ -56,16 +56,15 @@ class SmallAsteroid(_Asteroid):
 
     def calc_velocity_and_rotation(self):
         self.move_delta = (
-            random.choice([-1, 1]) * random.randint(10, 30),
-            random.choice([-1, 1]) * random.randint(10, 30),
+            random.choice([-1, 1]) * random.randint(50, 120),
+            random.choice([-1, 1]) * random.randint(50, 120),
         )
-        self.rotation_time = random.randint(20, 90)
+        self.rotation_time = random.randint(2, 8)
 
 
 class MediumAsteroid(_Asteroid):
     def __init__(self):
-        img_name = random.choice(["meteorgrey_med1.png", "meteorgrey_med2.png"])
-        image_file = os.path.join("res", img_name)
+        image_file = random.choice(["meteorgrey_med1.png", "meteorgrey_med2.png"])
         _Asteroid.__init__(self, image_file)
         self.action = None
         self.size = 2
@@ -73,16 +72,15 @@ class MediumAsteroid(_Asteroid):
 
     def calc_velocity_and_rotation(self):
         self.move_delta = (
-            random.choice([-1, 1]) * random.randint(6, 20),
-            random.choice([-1, 1]) * random.randint(6, 20),
+            random.choice([-1, 1]) * random.randint(10, 80),
+            random.choice([-1, 1]) * random.randint(10, 80),
         )
-        self.rotation_time = random.randint(12, 75)
+        self.rotation_time = random.randint(4, 15)
 
 
 class LargeAsteroid(_Asteroid):
-    def __init__(self, num):
-        self.num = num
-        img_name = random.choice(
+    def __init__(self):
+        image_file = random.choice(
             [
                 "meteorgrey_big1.png",
                 "meteorgrey_big2.png",
@@ -90,7 +88,6 @@ class LargeAsteroid(_Asteroid):
                 "meteorgrey_big4.png",
             ]
         )
-        image_file = os.path.join("res", img_name)
         _Asteroid.__init__(self, image_file)
         self.action = None
         self.size = 3
@@ -98,7 +95,7 @@ class LargeAsteroid(_Asteroid):
 
     def calc_velocity_and_rotation(self):
         self.move_delta = (
-            random.choice([-1, 1]) * random.randint(3, 12),
-            random.choice([-1, 1]) * random.randint(3, 12),
+            random.choice([-1, 1]) * random.randint(5, 35),
+            random.choice([-1, 1]) * random.randint(5, 35),
         )
-        self.rotation_time = random.randint(5, 60)
+        self.rotation_time = random.randint(5, 30)
